@@ -17,10 +17,11 @@ const TensePage = () => {
 
   function capitalizeWords(input: string): string {
     return input
-      .toLowerCase() // First, convert everything to lowercase
-      .replace(/\b\w/g, (char) => char.toUpperCase()); // Then capitalize the first letter of each word
+      .toLowerCase()
+      .replace(/\b[a-z]/g, (char) => char.toUpperCase()); // Ensure only letters are capitalized
   }
   const fetchData = (tense: any) => {
+    console.log(tense);
     fetch(`https://syntaxmap-back-p4ve.onrender.com/course/${tense}`, {
       method: "GET", // You can change this to POST/PUT if necessary
       headers: { Authorization: localStorage.getItem("jstoken") || "" },
@@ -28,8 +29,10 @@ const TensePage = () => {
       .then((res) => res.json())
       .then((res) => {
         setTenseData(res.courses[0]);
+        console.log(tenseData, "What");
         fetch(
-          "https://syntaxmap-back-p4ve.onrender.com/userupload/user/" + res.courses[0].course_id,
+          "https://syntaxmap-back-p4ve.onrender.com/userupload/user/" +
+            res.courses[0].course_id,
           {
             headers: {
               Authorization: localStorage.getItem("jstoken") || " ",
@@ -42,7 +45,6 @@ const TensePage = () => {
               const fetchedExamples = data.userUploads.map(
                 (upload: any) => upload.sentence
               );
-              console.log(fetchedExamples, "Examples");
               setExamples(fetchedExamples);
             }
           })

@@ -34,9 +34,12 @@ const StudentDashboard = () => {
               >
                 Destiny
               </th>
-              <td className="px-6 py-4 text-center">To Be To</td>
+              <td className="px-6 py-4 text-center">
+                <Link href="/tense/to-be-to">To Be To</Link>
+              </td>
               <td className="px-6 py-4 text-center "></td>
             </tr>
+
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
               <th
                 scope="row"
@@ -44,9 +47,12 @@ const StudentDashboard = () => {
               >
                 Obligation
               </th>
-              <td className="px-6 py-4 text-center">Must</td>
+              <td className="px-6 py-4 text-center">
+                <Link href="/tense/must">Must</Link>
+              </td>
               <td className="px-6 py-4 text-center ">Deduuction / Assertion</td>
             </tr>
+
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
               <th
                 scope="row"
@@ -54,9 +60,12 @@ const StudentDashboard = () => {
               >
                 Prediction / Obligation
               </th>
-              <td className="px-6 py-4 text-center">Shall</td>
+              <td className="px-6 py-4 text-center">
+                <Link href="/tense/shall">Shall</Link>
+              </td>
               <td className="px-6 py-4 text-center ">Neutral Proposal</td>
             </tr>
+
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
               <th
                 scope="row"
@@ -64,9 +73,12 @@ const StudentDashboard = () => {
               >
                 Personal Advice
               </th>
-              <td className="px-6 py-4 text-center">Should</td>
+              <td className="px-6 py-4 text-center">
+                <Link href="should">Should</Link>
+              </td>
               <td className="px-6 py-4 text-center ">Opinion</td>
             </tr>
+
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
               <th
                 scope="row"
@@ -74,11 +86,14 @@ const StudentDashboard = () => {
               >
                 Willingness / Immediate Decision / Conditionaal 1
               </th>
-              <td className="px-6 py-4 text-center">Will</td>
+              <td className="px-6 py-4 text-center">
+                <Link href="/tense/will">Will</Link>
+              </td>
               <td className="px-6 py-4 text-center ">
                 Prediction / Strong Characterization
               </td>
             </tr>
+
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
               <th
                 scope="row"
@@ -86,11 +101,14 @@ const StudentDashboard = () => {
               >
                 Desire / Conditionaal 2
               </th>
-              <td className="px-6 py-4 text-center">Would</td>
+              <td className="px-6 py-4 text-center">
+                <Link href="/tense/would">Would</Link>
+              </td>
               <td className="px-6 py-4 text-center ">
                 Very Strong Characterization
               </td>
             </tr>
+
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
               <th
                 scope="row"
@@ -98,19 +116,25 @@ const StudentDashboard = () => {
               >
                 Knowledge / Ability / Permissiion
               </th>
-              <td className="px-6 py-4 text-center">Can</td>
+              <td className="px-6 py-4 text-center">
+                <Link href="/tense/can">Can</Link>
+              </td>
               <td className="px-6 py-4 text-center ">
                 Possibility / Impossibility
               </td>
             </tr>
+
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
               <th
                 scope="row"
                 className="px-6 py-4 font-medium text-gray-900 whitespace-wrap dark:text-white text-center "
               ></th>
-              <td className="px-6 py-4 text-center">Could</td>
+              <td className="px-6 py-4 text-center">
+                <Link href="/tense/could">Could</Link>
+              </td>
               <td className="px-6 py-4 text-center ">Probability</td>
             </tr>
+
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
               <th
                 scope="row"
@@ -118,15 +142,20 @@ const StudentDashboard = () => {
               >
                 Permission
               </th>
-              <td className="px-6 py-4 text-center">May</td>
+              <td className="px-6 py-4 text-center">
+                <Link href="/tense/may">May</Link>
+              </td>
               <td className="px-6 py-4 text-center ">Probability</td>
             </tr>
+
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
               <th
                 scope="row"
                 className="px-6 py-4 font-medium text-gray-900 whitespace-wrap dark:text-white text-center "
               ></th>
-              <td className="px-6 py-4 text-center">Might</td>
+              <td className="px-6 py-4 text-center">
+                <Link href="/tense/might">Might</Link>
+              </td>
               <td className="px-6 py-4 text-center ">Low Probability</td>
             </tr>
           </tbody>

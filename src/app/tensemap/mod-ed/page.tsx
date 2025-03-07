@@ -15,9 +15,12 @@ const StudentDashboard = () => {
       <div className="mt-10 shadow-lg flex flex-col gap-8 w-full lg:max-w-[1200px] rounded-lg ">
         <div className=" shadow-lg  rounded-lg border border-gray-600">
           <div className="flex flex-wrap gap-8 justify-center py-4">
-            <button className="bg-gray-700 w-[200px] text-center  text-xl font-bold p-3 rounded-lg shadow border border-gray-500">
-              Must t-1
-            </button>
+            <Link href="/tense/must past">
+              <button className="bg-gray-700 w-[200px] text-center  text-xl font-bold p-3 rounded-lg shadow border border-gray-500">
+                Must t-1
+              </button>
+            </Link>
+
             <button className="bg-gray-700 w-[200px] text-center  text-xl font-bold p-3 rounded-lg shadow border border-gray-500">
               Was were supposed to
             </button>

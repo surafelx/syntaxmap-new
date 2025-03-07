@@ -20,12 +20,13 @@ const StudentDashboard = () => {
               CONDITION 0: WHEN/IF IS THE CONDITION
             </h2>
           </div>
-
-          <div className="flex flex-wrap gap-8 justify-center py-4">
-            <p>WHEN / IF</p>
-            <p>CONDITION S</p>
-            <p>EFFECT S</p>
-          </div>
+          <Link href="/tense/cond 0">
+            <div className="flex flex-wrap gap-8 justify-center py-4">
+              <p>WHEN / IF</p>
+              <p>CONDITION S</p>
+              <p>EFFECT S</p>
+            </div>
+          </Link>
         </div>
 
         {/* Conditional */}
@@ -37,38 +38,41 @@ const StudentDashboard = () => {
             </h2>
           </div>
 
-          <div className="flex flex-wrap gap-3 justify-center py-4">
-            <div className="flex flex-wrap gap-3 justify-center items-center">
-              <div>
-                <p>As Soon as</p>
-                <p>While</p>
-                <p>The moment</p>
-                <p>Before</p>
-                <p>After</p>
-              </div>
-              <p>S Have En</p>
-              <div className="flex gap-10">
+          <Link href="/tense/cond 1">
+            <div className="flex flex-wrap gap-3 justify-center py-4">
+              <div className="flex flex-wrap gap-3 justify-center items-center">
                 <div>
-                  <p>Present</p>
-                  <p>must</p>
-                  <p>will</p>
-                  <p>can</p>
-                  <p>may</p>
+                  <p>As Soon as</p>
+                  <p>While</p>
+                  <p>The moment</p>
+                  <p>Before</p>
+                  <p>After</p>
                 </div>
-                <div>
-                  <p>Future t+1</p>
-                  <p>have to</p>
-                  <p>be able to </p>
-                </div>
-                <div>
-                  <p>Conditional 2</p>
-                  <p>could</p>
-                  <p>might</p>
+                <p>S Have En</p>
+                <div className="flex gap-10">
+                  <div>
+                    <p>Present</p>
+                    <p>must</p>
+                    <p>will</p>
+                    <p>can</p>
+                    <p>may</p>
+                  </div>
+                  <div>
+                    <p>Future t+1</p>
+                    <p>have to</p>
+                    <p>be able to </p>
+                  </div>
+                  <div>
+                    <p>Conditional 2</p>
+                    <p>could</p>
+                    <p>might</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
+
         <div className=" shadow-lg  rounded-lg border border-gray-600">
           <div className="w-full bg-gray-800 py-2">
             {" "}
@@ -76,29 +80,30 @@ const StudentDashboard = () => {
               CONDITIONAL 2 t* : IMAGINAARY CONDITION
             </h2>
           </div>
-
-          <div className="flex flex-wrap gap-3 justify-center py-4">
-            <div className="flex flex-wrap gap-3 justify-center items-center">
-              <p>IF</p>
-              <p>COND ED</p>
-              <div className="flex gap-10">
-                <div>
-                  <p>Would</p>
-                  <p>Could</p>
-                  <p>Might</p>
-                </div>
-                <div>
-                  <p>Have to </p>
-                  <p>Be able to </p>
-                </div>
-                <div>
-                  <p>Conditional 2</p>
-                  <p>could</p>
-                  <p>might</p>
+          <Link href="/tense/cond 2">
+            <div className="flex flex-wrap gap-3 justify-center py-4">
+              <div className="flex flex-wrap gap-3 justify-center items-center">
+                <p>IF</p>
+                <p>COND ED</p>
+                <div className="flex gap-10">
+                  <div>
+                    <p>Would</p>
+                    <p>Could</p>
+                    <p>Might</p>
+                  </div>
+                  <div>
+                    <p>Have to </p>
+                    <p>Be able to </p>
+                  </div>
+                  <div>
+                    <p>Conditional 2</p>
+                    <p>could</p>
+                    <p>might</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
         {/* Tense Rows */}
         <div className=" shadow-lg  rounded-lg border border-gray-600">
@@ -110,20 +115,21 @@ const StudentDashboard = () => {
                 CONDITIONAL 3 t*(t-1) : IMAGINAARY CONDITION IN t-1
               </h2>
             </div>
+            <Link href="/tense/cond 3">
+              <div className="flex flex-wrap gap-3 justify-center items-center">
+                <p>IF</p>
+                <p>COND ED + HAVE EN = HAD EN</p>
+                <div className="flex gap-10 items-center">
+                  <div>
+                    <p>Would</p>
+                    <p>Could</p>
+                    <p>Might</p>
+                  </div>
 
-            <div className="flex flex-wrap gap-3 justify-center items-center">
-              <p>IF</p>
-              <p>COND ED + HAVE EN = HAD EN</p>
-              <div className="flex gap-10 items-center">
-                <div>
-                  <p>Would</p>
-                  <p>Could</p>
-                  <p>Might</p>
+                  <p>Have + EN</p>
                 </div>
-
-                <p>Have + EN</p>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Future */}

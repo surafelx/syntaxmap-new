@@ -22,9 +22,11 @@ const StudentDashboard = () => {
           </div>
 
           <div className="flex flex-wrap gap-3 justify-center py-4">
-            <button className="bg-gray-700 w-[200px] text-center text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
-              NO FUTURE
-            </button>
+            <Link href="/tensemap/future">
+              <button className="cursor-pointer bg-gray-700 w-[200px] text-center text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
+                NO FUTURE
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -39,9 +41,11 @@ const StudentDashboard = () => {
 
           <div className="flex flex-wrap gap-3 justify-center py-4">
             <div className="flex flex-wrap gap-3 justify-center">
-              <button className="bg-gray-700 w-[200px] text-center  text-xl font-bold p-3 rounded-lg shadow border border-gray-500">
-                WHEN / IF COND
-              </button>
+              <Link href="/tensemap/conditionals">
+                <button className="cursor-pointer bg-gray-700 w-[200px] text-center  text-xl font-bold p-3 rounded-lg shadow border border-gray-500">
+                  WHEN / IF COND
+                </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -54,23 +58,28 @@ const StudentDashboard = () => {
           <div className="flex flex-wrap gap-3 justify-center py-4">
             <div className="flex flex-wrap gap-3 justify-center">
               <Link
-                href=""
+                href="/tense/present-simple"
                 className="bg-gray-700 w-[200px] text-center text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500"
               >
                 DO / S
               </Link>
-              <button className="bg-gray-700 w-[200px] text-center text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
-                MOD
-              </button>
+              <Link href="/tensemap/mod">
+                <button className="cursor-pointer bg-gray-700 w-[200px] text-center text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
+                  MOD
+                </button>
+              </Link>
+
               <Link
                 href="/tense/present-perfect"
                 className="bg-gray-700 w-[200px] text-center text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500"
               >
                 HAVE EN
               </Link>
-              <button className="bg-gray-700 w-[200px] text-center  text-xl font-bold p-3 rounded-lg shadow border border-gray-500">
-                BEING
-              </button>
+              <Link href="/tense/present-continous">
+                <button className="cursor-pointer bg-gray-700 w-[200px] text-center  text-xl font-bold p-3 rounded-lg shadow border border-gray-500">
+                  BEING
+                </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -86,18 +95,26 @@ const StudentDashboard = () => {
             </div>
 
             <div className="flex flex-wrap gap-3 justify-center py-4">
-              <button className="bg-gray-700 w-[200px] text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
-                DID (t-1)
-              </button>
-              <button className="bg-gray-700 w-[200px] text-center text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
-                MOD ED
-              </button>
-              <button className="bg-gray-700 w-[200px] text-center text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
-                HAD EN (t-2 ⊂ t-1)
-              </button>
-              <button className="bg-gray-700 w-[200px] text-center  text-xl font-bold p-3 rounded-lg shadow border border-gray-500">
-                WAS / WERE / ING
-              </button>
+              <Link href="/tense/past-simple">
+                <button className="cursor-pointer bg-gray-700 w-[200px] text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
+                  DID (t-1)
+                </button>
+              </Link>
+              <Link href="/tensemap/mod-ed">
+                <button className="cursor-pointer bg-gray-700 w-[200px] text-center text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
+                  MOD ED
+                </button>
+              </Link>
+              <Link href="/tense/past-perfect">
+                <button className="cursor-pointer bg-gray-700 w-[200px] text-center text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
+                  HAD EN (t-2 ⊂ t-1)
+                </button>
+              </Link>
+              <Link href="/tense/past-continous">
+                <button className="cursor-pointer bg-gray-700 w-[200px] text-center  text-xl font-bold p-3 rounded-lg shadow border border-gray-500">
+                  WAS / WERE / ING
+                </button>
+              </Link>
             </div>
           </div>
 

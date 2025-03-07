@@ -15,6 +15,7 @@ const TensePage = () => {
     course_id: "",
   });
 
+  let courseId = "";
   function capitalizeWords(input: string): string {
     return input
       .toLowerCase()
@@ -29,23 +30,20 @@ const TensePage = () => {
       .then((res) => res.json())
       .then((res) => {
         setTenseData(res.courses[0]);
-        console.log(tenseData, "What");
-        fetch(
-          "https://syntaxmap-back-p4ve.onrender.com/userupload/user/" +
-            res.courses[0].course_id,
-          {
-            headers: {
-              Authorization: localStorage.getItem("jstoken") || " ",
-            },
-          }
-        )
+        courseId = res.courses[0].course_id;
+        fetch("https://syntaxmap-back-p4ve.onrender.com/userupload/user/", {
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            Authorization: localStorage.getItem("jstoken") || " ",
+          },
+        })
           .then((res) => res.json())
           .then((data) => {
             if (data) {
-              const fetchedExamples = data.userUploads.map(
-                (upload: any) => upload.sentence
+              const filtered = data.userUploads.filter(
+                (ex: any) => ex.course_id == courseId
               );
-              setExamples(fetchedExamples);
+              setExamples(filtered);
             }
           })
           .catch((err) => {
@@ -174,7 +172,7 @@ const TensePage = () => {
             <h2 className="max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
               {capitalizeWords(tenseData.course_title || "")}
             </h2>
-            <Link href={`/quiz/`}>
+            <Link href={`/quiz/${tenseData.course_id}`}>
               <button
                 type="button"
                 className="flex items-center justify-center px-4 h-full py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
@@ -216,7 +214,7 @@ const TensePage = () => {
                 </button>
               </div>
 
-              {userExamples.map((sentence) => (
+              {userExamples.map(({ sentence }) => (
                 <p>{sentence}</p>
               ))}
             </div>

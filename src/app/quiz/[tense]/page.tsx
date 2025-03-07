@@ -1,6 +1,8 @@
 // @ts-nocheck
 "use client";
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 
 function updateSession() {
   const formattedDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
@@ -18,6 +20,7 @@ function updateSession() {
 }
 
 const Quiz = () => {
+  const { tense } = useParams();
   const [quizResult, setQuizResult] = useState([]);
   const [quizState, setQuizState] = useState("initial");
   const [tenseQuiz, setTenseQuiz] = useState<any[]>([]);
@@ -26,13 +29,14 @@ const Quiz = () => {
   const [questionAmount, setQuestionAmount] = useState(20);
 
   const fetchData = () => {
-    fetch(`https://syntaxmap-back-p4ve.onrender.com/quiz/`, {
+    fetch(`https://syntaxmap-back-p4ve.onrender.com/quiz/` + tense, {
       method: "GET", // You can change this to POST/PUT if necessary
       headers: { Authorization: localStorage.getItem("jstoken") || "" },
     })
       .then((res) => res.json())
-      .then((res) => {
-        setTenseQuiz(res.questions);
+      .then((data) => {
+        console.log("Decision", data);
+        setTenseQuiz(data.questions);
       });
   };
 
@@ -286,12 +290,14 @@ const Quiz = () => {
             <h2 className=" text-center mb-8 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
               You have saved your result and note.
             </h2>
-            <button
-              type="submit"
-              className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            >
-              Go back to Syntax Map
-            </button>
+            <Link href="/tensemap">
+              <button
+                type="submit"
+                className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              >
+                Go back to Syntax Map
+              </button>
+            </Link>
           </div>
         </div>
       </div>

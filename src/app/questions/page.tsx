@@ -1,103 +1,75 @@
-// @ts-nocheck
 "use client";
-import { useState } from "react";
+import Link from "next/link";
+import { useState, useEffect } from "react";
 
-const StudentDashboard = () => {
-  const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    question_title: "",
-    good_option: "",
-    bad_options: ["", "", ""], // Three bad options
-    difficulty: [],
-    verified: false,
-  });
+const Courses = () => {
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+  const [questions, setQuestions] = useState([]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    if (name.startsWith("bad_option")) {
-      // Handle bad options separately
-      const index = parseInt(name.split("_")[2], 10);
-      setFormData((prev) => {
-        const updatedBadOptions = [...prev.bad_options];
-        updatedBadOptions[index] = value;
-        return { ...prev, bad_options: updatedBadOptions };
-      });
-    } else if (type === "checkbox") {
-      if (name === "verified") {
-        setFormData((prev) => ({ ...prev, verified: checked }));
-      } else {
-        setFormData((prev: any) => ({
-          ...prev,
-          difficulty: checked
-            ? [...prev.difficulty, value]
-            : prev.difficulty.filter((d: any) => d !== value),
-        }));
-      }
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-  const handleSubmit = (e: any) => {
+  useEffect(() => {
+    fetch("https://syntaxmap-back-p4ve.onrender.com/quiz")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setQuestions(data.questions);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  const updateCourse = (e: any) => {
     e.preventDefault();
+    fetch(
+      `https://syntaxmap-back-p4ve.onrender.com/course/${e.target[0].value}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          course_id: e.target[0].value,
+          course_item: e.target[1].value,
+          course_title: e.target[2].value,
+          course_data: e.target[3].value,
+          course_image: null,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          Authorization: localStorage.getItem("jstoken") || "",
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
+  };
 
-    // Construct the formData object from form inputs
-    const formData = {
-      question_title: e.target.question_title.value,
-      good_option: e.target.good_option.value,
-      bad_option_1: e.target.bad_option_1.value,
-      bad_option_2: e.target.bad_option_2.value,
-      bad_option_3: e.target.bad_option_3.value,
-      difficulty: e.target.difficulty.value,
-      verified: e.target.verified.checked,
-    };
-
-    // Construct payload
-    const payload = {
-      quiz_data: {
-        question: formData.question_title,
-        good_option: formData.good_option,
-        bad_option_1: formData.bad_option_1,
-        bad_option_2: formData.bad_option_2,
-        bad_option_3: formData.bad_option_3,
-        difficulty: formData.difficulty,
-        verified: formData.verified,
-      },
-    };
-
-    // Send the payload to your API endpoint
-    fetch("https://syntaxmap-back-p4ve.onrender.com/quiz", {
-      method: "POST",
-      body: JSON.stringify(payload),
+  const deleteCourse = (courseId: any) => {
+    fetch(`https://syntaxmap-back-p4ve.onrender.com/course/${courseId}`, {
+      method: "DELETE",
       headers: {
-        "Content-Type": "application/json; charset=UTF-8",
+        "Content-type": "application/json; charset=UTF-8",
+        Authorization: localStorage.getItem("jstoken") || "",
       },
     })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+      .then((res) => res.json())
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
   };
 
   return (
-    <div className="">
+    <div className="overflow-y-scroll min-h-screen bg-gray-900">
       <div
         id="crud-modal"
         tabIndex={-1}
         aria-hidden="true"
         className={`${
-          !isQuestionModalOpen && "hidden"
+          !isCourseModalOpen && "hidden"
         } fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center`} // Flexbox for centering and overlay with opacity
       >
-        <div className="relative p-4 w-full max-w-xl max-h-full overflow-y-scroll bg-white rounded-lg shadow-sm dark:bg-gray-700">
+        <div className="relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow-sm dark:bg-gray-700">
           <div className="flex items-center justify-between p-2 md:p-2 border-b rounded-t dark:border-gray-600 border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Create New Question
+              Create New Course
             </h3>
             <button
-              onClick={() => setIsQuestionModalOpen(false)}
+              onClick={() => setIsCourseModalOpen(false)}
               type="button"
               className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
               data-modal-toggle="crud-modal"
@@ -120,89 +92,65 @@ const StudentDashboard = () => {
               <span className="sr-only">Close modal</span>
             </button>
           </div>
-          <form onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="question_title">Question Title</label>
-              <input
-                type="text"
-                id="question_title"
-                name="question_title"
-                value={formData.question_title}
-                onChange={handleChange}
-              />
-            </div>
+          <form className="p-4 md:p-5">
+            <div className="grid gap-4 mb-4 grid-cols-2">
+              <div className="col-span-2">
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="Type course title"
+                  required
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Item
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="Type course item"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="good_option">Good Option</label>
-              <input
-                type="text"
-                id="good_option"
-                name="good_option"
-                value={formData.good_option}
-                onChange={handleChange}
-              />
+              <div className="col-span-2">
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Course Description
+                </label>
+                <textarea
+                  id="description"
+                  rows={4}
+                  className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Write course description here"
+                ></textarea>
+              </div>
             </div>
-
-            <div>
-              <label htmlFor="bad_option_1">Bad Option 1</label>
-              <input
-                type="text"
-                id="bad_option_1"
-                name="bad_option_1"
-                value={formData.bad_option_1}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="bad_option_2">Bad Option 2</label>
-              <input
-                type="text"
-                id="bad_option_2"
-                name="bad_option_2"
-                value={formData.bad_option_2}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="bad_option_3">Bad Option 3</label>
-              <input
-                type="text"
-                id="bad_option_3"
-                name="bad_option_3"
-                value={formData.bad_option_3}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="difficulty">Difficulty</label>
-              <select
-                id="difficulty"
-                name="difficulty"
-                value={formData.difficulty}
-                onChange={handleChange}
+            <button
+              type="submit"
+              className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              <svg
+                className="me-1 -ms-1 w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <option value="">Select Difficulty</option>
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="verified">Verified</label>
-              <input
-                type="checkbox"
-                id="verified"
-                name="verified"
-                checked={formData.verified}
-                onChange={handleChange}
-              />
-            </div>
-
-            <button type="submit">Submit</button>
+                <path
+                  fillRule="evenodd"
+                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
+              Add new course
+            </button>
           </form>
         </div>
       </div>
@@ -245,7 +193,7 @@ const StudentDashboard = () => {
               </div>
               <div className="flex flex-col items-stretch justify-end flex-shrink-0 w-full space-y-2 md:w-auto md:flex-row md:space-y-0 md:items-center md:space-x-3">
                 <button
-                  onClick={() => setIsQuestionModalOpen(true)}
+                  onClick={() => setIsCourseModalOpen(true)}
                   type="button"
                   className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                 >
@@ -262,7 +210,7 @@ const StudentDashboard = () => {
                       d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                     />
                   </svg>
-                  Add Question
+                  Add Course
                 </button>
               </div>
             </div>
@@ -275,174 +223,87 @@ const StudentDashboard = () => {
                     ID
                   </th>
                   <th scope="col" className="px-6 py-3">
-                    Item
+                    Online Exam IDs
                   </th>
+
                   <th scope="col" className="px-6 py-3">
-                    Question
+                    Title
                   </th>
-                  <th scope="col" className="px-6 py-3">
-                    A
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    B
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    C
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    D
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    Right Answer
-                  </th>
+
                   <th scope="col" className="px-6 py-3">
                     Difficulty
                   </th>
                   <th scope="col" className="px-6 py-3">
                     Verified
                   </th>
+
                   <th scope="col" className="px-6 py-3">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-wrap dark:text-white"
-                  >
-                    Apple MacBook Pro 17"
-                  </th>
-                  <td className="px-6 py-4">Silver</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">Laptop</td>
-
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">Silver</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-4">
-                      <button
-                        type="submit"
-                        className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                {questions?.map((course: any) => {
+                  return (
+                    <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+                      <th
+                        scope="row"
+                        className="px-6 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                       >
-                        Update
-                      </button>
-                      <button
-                        type="submit"
-                        className="text-white inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-wrap dark:text-white"
-                  >
-                    Apple MacBook Pro 17"
-                  </th>
-                  <td className="px-6 py-4">Silver</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">Laptop</td>
-
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">Silver</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-4">
-                      <button
-                        type="submit"
-                        className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                      >
-                        Update
-                      </button>
-                      <button
-                        type="submit"
-                        className="text-white inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-wrap dark:text-white"
-                  >
-                    Apple MacBook Pro 17"
-                  </th>
-                  <td className="px-6 py-4">Silver</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">Laptop</td>
-
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">Silver</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-4">
-                      <button
-                        type="submit"
-                        className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                      >
-                        Update
-                      </button>
-                      <button
-                        type="submit"
-                        className="text-white inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-wrap dark:text-white"
-                  >
-                    Apple MacBook Pro 17"
-                  </th>
-                  <td className="px-6 py-4">Silver</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">Laptop</td>
-
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">Silver</td>
-                  <td className="px-6 py-4">Laptop</td>
-                  <td className="px-6 py-4">$2999</td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-4">
-                      <button
-                        type="submit"
-                        className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                      >
-                        Update
-                      </button>
-                      <button
-                        type="submit"
-                        className="text-white inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                        {course?.question_id}
+                      </th>
+                      <td className="px-6 py-2">
+                        {" "}
+                        <input
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          type="text"
+                          defaultValue={course?.online_exam_ids}
+                        />
+                      </td>
+                      <td className="px-6 py-2">
+                        {" "}
+                        <input
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          type="text"
+                          defaultValue={course?.question_title}
+                        />
+                      </td>
+                      <td className="px-6 py-2">
+                        {" "}
+                        <input
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          type="text"
+                          defaultValue={course?.verified}
+                        />
+                      </td>
+                      <td className="px-6 py-2">
+                        {" "}
+                        <input
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          type="text"
+                          defaultValue={course?.ifficulty}
+                        />
+                      </td>
+                      <td className="px-6 py-2">
+                        <div className="flex gap-4">
+                          <button
+                            onClick={updateCourse}
+                            type="submit"
+                            className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                          >
+                            Update
+                          </button>
+                          <button
+                            onClick={() => deleteCourse(course.course_id)}
+                            className="text-white inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -452,4 +313,4 @@ const StudentDashboard = () => {
   );
 };
 
-export default StudentDashboard;
+export default Courses;

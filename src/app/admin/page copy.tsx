@@ -1,36 +1,53 @@
+// @ts-nocheck
 "use client";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 
-const Users = () => {
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
+const Courses = () => {
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+  const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    fetch("https://syntaxmap-back-p4ve.onrender.com/user")
-      .then((res) => res.json())
-      .then((res) => {
-        setUsers(res.users);
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  const updateUser = (userId: any, updatedUser: any) => {
-    fetch(`https://syntaxmap-back-p4ve.onrender.com/user/${userId}`, {
-      method: "PUT",
-      body: JSON.stringify(updatedUser),
+    fetch("https://syntaxmap-back-p4ve.onrender.com/user", {
       headers: {
         "Content-type": "application/json; charset=UTF-8",
         Authorization: localStorage.getItem("jstoken") || "",
       },
     })
       .then((res) => res.json())
+
+      .then((res) => {
+        console.log(res, "Value");
+        setCourses(res.users);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  const updateUser = (e: any) => {
+    e.preventDefault();
+    fetch(
+      `https://syntaxmap-back-p4ve.onrender.com/user/${e.target[0].value}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          course_id: e.target[0].value,
+          course_item: e.target[1].value,
+          course_title: e.target[2].value,
+          course_data: e.target[3].value,
+          course_image: null,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          Authorization: localStorage.getItem("jstoken") || "",
+        },
+      }
+    )
+      .then((res) => res.json())
       .then((res) => console.log(res))
       .catch((err) => console.log(err));
   };
 
-  const deleteUser = (userId: any) => {
-    fetch(`https://syntaxmap-back-p4ve.onrender.com/user/${userId}`, {
+  const deleteUser = (courseId: any) => {
+    fetch(`https://syntaxmap-back-p4ve.onrender.com/course/${courseId}`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -42,67 +59,23 @@ const Users = () => {
       .catch((err) => console.log(err));
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    userId: any,
-    field: string
-  ) => {
-    setUsers((prevUsers) => {
-      return prevUsers.map((user) => {
-        if (user.user_id === userId) {
-          return { ...user, [field]: e.target.value };
-        }
-        return user;
-      });
-    });
-  };
-
-  const createUser = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Get form data
-    const formData = new FormData(e.target as HTMLFormElement);
-    const userData = {
-      user_email_address: formData.get("user_email_address") as string,
-      user_role: formData.get("user_role") as string,
-    };
-
-    fetch("https://syntaxmap-back-p4ve.onrender.com/course", {
-      method: "POST",
-      body: JSON.stringify(userData),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        Authorization: localStorage.getItem("jstoken") || "",
-      },
-    })
-      .then((res) => res.json())
-      .then((newCourse) => {
-        // Update the courses state with the new course
-        // @ts-ignore
-        setUsers((prevUsers) => [...prevUsers, newUser]);
-        setIsUserModalOpen(false); // Close the modal
-      })
-      .catch((err) => console.log(err));
-  };
-
   return (
     <div className="overflow-y-scroll min-h-screen bg-gray-900">
-      {/* Modal */}
       <div
         id="crud-modal"
         tabIndex={-1}
         aria-hidden="true"
         className={`${
-          !isUserModalOpen && "hidden"
-        } fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center`}
+          !isCourseModalOpen && "hidden"
+        } fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center`} // Flexbox for centering and overlay with opacity
       >
         <div className="relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow-sm dark:bg-gray-700">
           <div className="flex items-center justify-between p-2 md:p-2 border-b rounded-t dark:border-gray-600 border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Create New Course
+              Create New User
             </h3>
             <button
-              onClick={() => setIsUserModalOpen(false)}
+              onClick={() => setIsCourseModalOpen(false)}
               type="button"
               className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
               data-modal-toggle="crud-modal"
@@ -125,43 +98,47 @@ const Users = () => {
               <span className="sr-only">Close modal</span>
             </button>
           </div>
-          <form className="p-4 md:p-5" onSubmit={createUser}>
+          <form className="p-4 md:p-5">
             <div className="grid gap-4 mb-4 grid-cols-2">
               <div className="col-span-2">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Title
+                  Email
                 </label>
                 <input
-                  type="text"
-                  name="course_title"
+                  type="email"
+                  name="email"
+                  id="email"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="Type course title"
+                  placeholder="Enter user email"
                   required
                 />
               </div>
               <div className="col-span-2">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Item
+                  Role
                 </label>
-                <input
-                  type="text"
-                  name="course_item"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="Type course item"
-                  required
-                />
+                <select
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  //   value={timePerQuestion}
+                  //   onChange={(e) => setTimePerQuestion(Number(e.target.value))}
+                >
+                  <option value="1">Student</option>
+                  <option value="2">Professor</option>
+                  <option value="3">Admin</option>
+                </select>
               </div>
-
               <div className="col-span-2">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Course Description
+                  Password
                 </label>
-                <textarea
-                  name="course_description"
-                  rows={4}
-                  className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="Write course description here"
-                ></textarea>
+                <input
+                  type="pasword"
+                  name="pasword"
+                  id="pasword"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="*********"
+                  required
+                />
               </div>
             </div>
             <button
@@ -180,7 +157,7 @@ const Users = () => {
                   clipRule="evenodd"
                 ></path>
               </svg>
-              Add new course
+              Add new User
             </button>
           </form>
         </div>
@@ -224,7 +201,7 @@ const Users = () => {
               </div>
               <div className="flex flex-col items-stretch justify-end flex-shrink-0 w-full space-y-2 md:w-auto md:flex-row md:space-y-0 md:items-center md:space-x-3">
                 <button
-                  onClick={() => setIsUserModalOpen(true)}
+                  onClick={() => setIsCourseModalOpen(true)}
                   type="button"
                   className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                 >
@@ -241,7 +218,7 @@ const Users = () => {
                       d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                     />
                   </svg>
-                  Add Course
+                  Add User
                 </button>
               </div>
             </div>
@@ -254,7 +231,10 @@ const Users = () => {
                     ID
                   </th>
                   <th scope="col" className="px-6 py-3">
-                    Email Address
+                    Email
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Username
                   </th>
                   <th scope="col" className="px-6 py-3">
                     Role
@@ -266,7 +246,7 @@ const Users = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((course: any, index: any) => {
+                {courses?.map((course: any, index: any) => {
                   return (
                     <tr
                       key={index}
@@ -279,41 +259,48 @@ const Users = () => {
                         {course?.user_id}
                       </th>
                       <td className="px-6 py-2">
+                        {" "}
                         <input
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          value={course?.user_email_address}
-                          onChange={(e) =>
-                            handleChange(
-                              e,
-                              course?.user_id,
-                              "user_email_address"
-                            )
-                          }
+                          type="email"
+                          defaultValue={course?.user_email_address}
                         />
                       </td>
                       <td className="px-6 py-2">
+                        {" "}
                         <input
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          value={course?.user_role}
-                          onChange={(e) =>
-                            handleChange(e, course?.user_role, "user_role")
-                          }
+                          type="texts"
+                          defaultValue={course?.user_name}
                         />
                       </td>
-                      q
                       <td className="px-6 py-2">
-                        <button
-                          onClick={() => deleteUser(course?.user_id)}
-                          className="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                        {" "}
+                        <select
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          defaultValue={course?.user_role}
                         >
-                          Delete
-                        </button>
-                        <button
-                          onClick={() => updateUser(course?.user_id, course)}
-                          className="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                        >
-                          Save
-                        </button>
+                          <option value={3}>Student</option>
+                          <option value={1}>Admin</option>
+                        </select>
+                      </td>
+
+                      <td className="px-6 py-2">
+                        <div className="flex gap-4">
+                          <button
+                            onClick={updateUser}
+                            type="submit"
+                            className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                          >
+                            Update
+                          </button>
+                          <button
+                            onClick={() => deleteUser(course.course_id)}
+                            className="text-white inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -327,4 +314,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default Courses;

@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
   }, [setUserEmail]);
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700 ">
+    <nav className="fixed  top-0 w-full z-[1000] bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700 ">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <Link
           href="/"
@@ -151,6 +151,17 @@ const Navbar: React.FC = () => {
               </li>
               {isAdmin && (
                 <>
+                  <li>
+                    <Link
+                      href="/admin"
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                      }}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                    >
+                      Admin
+                    </Link>
+                  </li>
                   <li>
                     <Link
                       href="/questions"

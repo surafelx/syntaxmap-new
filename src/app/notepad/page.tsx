@@ -187,9 +187,6 @@ const Notepad = () => {
                     <th scope="col" className="px-6 py-3">
                       Mistaken Questions
                     </th>
-                    <th scope="col" className="px-6 py-3">
-                      Result
-                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -206,14 +203,19 @@ const Notepad = () => {
                           {data.session_name}
                         </th>
                         <td className="px-6 py-4">{data.note}</td>
-                        <td className="px-6 py-4">{data.words}</td>
                         <td className="px-6 py-4">
-                          {data.questions.map((q: any) => (
-                            <p>{q.question_title}</p>
-                          ))}
-                        </td>
-                        <td className="px-6 py-4">
-                          {data.questions_wrong_id.length}
+                          {data.questions
+                            .filter(
+                              (value: any, index: any, self: any) =>
+                                index ===
+                                self.findIndex(
+                                  (t: any) =>
+                                    t.question_id === value.question_id
+                                )
+                            )
+                            .map((q: any) => (
+                              <p key={q.id}>{q.question_title}</p>
+                            ))}
                         </td>
                       </tr>
                     );

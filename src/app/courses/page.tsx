@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 const Courses = () => {
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState<any[]>([]);
 
   useEffect(() => {
     fetch("https://syntaxmap-back-p4ve.onrender.com/course")
@@ -15,25 +15,15 @@ const Courses = () => {
       .catch((err) => console.log(err));
   }, []);
 
-  const updateCourse = (e: any) => {
-    e.preventDefault();
-    fetch(
-      `https://syntaxmap-back-p4ve.onrender.com/course/${e.target[0].value}`,
-      {
-        method: "PUT",
-        body: JSON.stringify({
-          course_id: e.target[0].value,
-          course_item: e.target[1].value,
-          course_title: e.target[2].value,
-          course_data: e.target[3].value,
-          course_image: null,
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-          Authorization: localStorage.getItem("jstoken") || "",
-        },
-      }
-    )
+  const updateCourse = (courseId: any, updatedCourse: any) => {
+    fetch(`https://syntaxmap-back-p4ve.onrender.com/course/${courseId}`, {
+      method: "PUT",
+      body: JSON.stringify(updatedCourse),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        Authorization: localStorage.getItem("jstoken") || "",
+      },
+    })
       .then((res) => res.json())
       .then((res) => console.log(res))
       .catch((err) => console.log(err));
@@ -52,15 +42,60 @@ const Courses = () => {
       .catch((err) => console.log(err));
   };
 
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    courseId: any,
+    field: string
+  ) => {
+    setCourses((prevCourses) => {
+      return prevCourses.map((course) => {
+        if (course.course_id === courseId) {
+          return { ...course, [field]: e.target.value };
+        }
+        return course;
+      });
+    });
+  };
+
+  const createCourse = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Get form data
+    const formData = new FormData(e.target as HTMLFormElement);
+    const courseData = {
+      course_item: formData.get("course_item") as string,
+      course_title: formData.get("course_title") as string,
+      course_data: formData.get("course_description") as string,
+      course_image: null, // You can update this if there's an image to upload
+    };
+
+    fetch("https://syntaxmap-back-p4ve.onrender.com/course", {
+      method: "POST",
+      body: JSON.stringify(courseData),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        Authorization: localStorage.getItem("jstoken") || "",
+      },
+    })
+      .then((res) => res.json())
+      .then((newCourse) => {
+        // Update the courses state with the new course
+        setCourses((prevCourses) => [...prevCourses, newCourse]);
+        setIsCourseModalOpen(false); // Close the modal
+      })
+      .catch((err) => console.log(err));
+  };
+
   return (
     <div className="overflow-y-scroll min-h-screen bg-gray-900">
+      {/* Modal */}
       <div
         id="crud-modal"
         tabIndex={-1}
         aria-hidden="true"
         className={`${
           !isCourseModalOpen && "hidden"
-        } fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center`} // Flexbox for centering and overlay with opacity
+        } fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center`}
       >
         <div className="relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow-sm dark:bg-gray-700">
           <div className="flex items-center justify-between p-2 md:p-2 border-b rounded-t dark:border-gray-600 border-gray-200">
@@ -91,7 +126,7 @@ const Courses = () => {
               <span className="sr-only">Close modal</span>
             </button>
           </div>
-          <form className="p-4 md:p-5">
+          <form className="p-4 md:p-5" onSubmit={createCourse}>
             <div className="grid gap-4 mb-4 grid-cols-2">
               <div className="col-span-2">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -99,8 +134,7 @@ const Courses = () => {
                 </label>
                 <input
                   type="text"
-                  name="name"
-                  id="name"
+                  name="course_title"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   placeholder="Type course title"
                   required
@@ -112,8 +146,7 @@ const Courses = () => {
                 </label>
                 <input
                   type="text"
-                  name="name"
-                  id="name"
+                  name="course_item"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   placeholder="Type course item"
                   required
@@ -125,7 +158,7 @@ const Courses = () => {
                   Course Description
                 </label>
                 <textarea
-                  id="description"
+                  name="course_description"
                   rows={4}
                   className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Write course description here"
@@ -236,9 +269,12 @@ const Courses = () => {
                 </tr>
               </thead>
               <tbody>
-                {courses?.map((course: any) => {
+                {courses.map((course: any, index: any) => {
                   return (
-                    <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+                    <tr
+                      key={index}
+                      className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
+                    >
                       <th
                         scope="row"
                         className="px-6 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"
@@ -246,44 +282,47 @@ const Courses = () => {
                         {course?.course_id}
                       </th>
                       <td className="px-6 py-2">
-                        {" "}
                         <input
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          type="text"
-                          defaultValue={course?.course_item}
+                          value={course?.course_item}
+                          onChange={(e) =>
+                            handleChange(e, course?.course_id, "course_item")
+                          }
                         />
                       </td>
                       <td className="px-6 py-2">
-                        {" "}
                         <input
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          type="text"
-                          defaultValue={course?.course_title}
+                          value={course?.course_title}
+                          onChange={(e) =>
+                            handleChange(e, course?.course_id, "course_title")
+                          }
                         />
                       </td>
                       <td className="px-6 py-2">
-                        {" "}
-                        <textarea
-                          className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          defaultValue={course?.course_data}
+                        <input
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          value={course?.course_data}
+                          onChange={(e) =>
+                            handleChange(e, course?.course_id, "course_data")
+                          }
                         />
                       </td>
                       <td className="px-6 py-2">
-                        <div className="flex gap-4">
-                          <button
-                            onClick={updateCourse}
-                            type="submit"
-                            className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                          >
-                            Update
-                          </button>
-                          <button
-                            onClick={() => deleteCourse(course.course_id)}
-                            className="text-white inline-flex items-center bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => deleteCourse(course?.course_id)}
+                          className="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={() =>
+                            updateCourse(course?.course_id, course)
+                          }
+                          className="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        >
+                          Save
+                        </button>
                       </td>
                     </tr>
                   );

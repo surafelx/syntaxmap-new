@@ -87,12 +87,12 @@ export default function DictionaryTooltip() {
     <>
       {visible && (
         <div
+          className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
           style={{
             zIndex: 1000,
             position: "absolute",
             top: position.y + 10,
             left: position.x + 10,
-            background: "white",
             padding: "8px",
             border: "1px solid black",
             borderRadius: "4px",

@@ -52,7 +52,9 @@ const StudentDashboard = () => {
         <div className=" shadow-lg  rounded-lg border border-gray-600">
           <div className="w-full bg-gray-800 py-2">
             {" "}
-            <h2 className="text-center text-xl font-bold text-white ">PAST</h2>
+            <h2 className="text-center text-xl font-bold text-white ">
+              PRESENT
+            </h2>
           </div>
 
           <div className="flex flex-wrap gap-3 justify-center py-4">

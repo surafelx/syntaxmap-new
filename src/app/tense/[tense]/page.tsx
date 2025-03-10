@@ -170,9 +170,9 @@ const TensePage = () => {
         <div className="max-w-screen-xl px-4 mx-auto lg:px-12 w-full">
           <div className="flex justify-between">
             <h2 className="max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
-              {capitalizeWords(tenseData.course_title || "")}
+              {capitalizeWords(tenseData?.course_title || "")}
             </h2>
-            <Link href={`/quiz/${tenseData.course_id}`}>
+            <Link href={`/quiz/${tenseData?.course_id}`}>
               <button
                 type="button"
                 className="flex items-center justify-center px-4 h-full py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
@@ -200,7 +200,7 @@ const TensePage = () => {
               <h3 className=" mb-2 text-lg font-extrabold tracking-tight leading-none md:text-xl xl:text-2xl dark:text-white">
                 Definition
               </h3>
-              <p>{tenseData.course_data}</p>
+              <p>{tenseData?.course_data}</p>
             </div>
           </div>
           <div className="relative bg-white shadow-md dark:bg-gray-800 sm:rounded-lg mb-4">
@@ -214,8 +214,8 @@ const TensePage = () => {
                 </button>
               </div>
 
-              {userExamples.map(({ sentence }) => (
-                <p>{sentence}</p>
+              {userExamples.map(({ sentence }, index) => (
+                <p key={index}>{sentence}</p>
               ))}
             </div>
           </div>

@@ -8,6 +8,7 @@ const TensePage = () => {
   const [sentence, setSentence] = useState("");
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [userExamples, setExamples] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [tenseData, setTenseData] = useState({
     course_title: "",
@@ -30,7 +31,8 @@ const TensePage = () => {
       .then((res) => res.json())
       .then((res) => {
         setTenseData(res.courses[0]);
-        courseId = res.courses[0].course_id;
+        setIsLoading(false);
+        courseId = res.courses[0]?.course_id;
         fetch("https://syntaxmap-back-p4ve.onrender.com/userupload/user/", {
           headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -45,10 +47,12 @@ const TensePage = () => {
               );
               setExamples(filtered);
             }
+           
           })
           .catch((err) => {
             console.log("Encountering Error");
             console.error(err);
+            setIsLoading(false);
           });
       });
   };
@@ -89,6 +93,13 @@ const TensePage = () => {
       });
   };
 
+  if (isLoading)
+    return (
+      <div className="dark:bg-gray-900 h-screen w-screen z-[100] flex items-center justify-center">
+        <div className="loader"></div>
+      </div>
+    );
+
   return (
     <div className="">
       <div
@@ -99,7 +110,7 @@ const TensePage = () => {
           !isCourseModalOpen && "hidden"
         } fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center`} // Flexbox for centering and overlay with opacity
       >
-        <div className="relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow-sm dark:bg-gray-700">
+        <div className=" relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow-sm dark:bg-gray-700">
           <div className="flex items-center justify-between p-2 md:p-2 border-b rounded-t dark:border-gray-600 border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Create New Example
@@ -166,16 +177,16 @@ const TensePage = () => {
         </div>
       </div>
 
-      <section className="bg-gray-50 dark:bg-gray-900 h-screen flex pt-10">
+      <section className=" bg-gray-50 dark:bg-gray-900 h-screen flex pt-10">
         <div className="max-w-screen-xl px-4 mx-auto lg:px-12 w-full">
-          <div className="flex justify-between">
-            <h2 className="max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
+          <div className="flex justify-between items-center">
+            <h2 className="mt-12 max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
               {capitalizeWords(tenseData?.course_title || "")}
             </h2>
-            <Link href={`/quiz/${tenseData?.course_id}`}>
+            <Link className="h-[50px]" href={`/quiz/${tenseData?.course_id}`}>
               <button
                 type="button"
-                className="flex items-center justify-center px-4 h-full py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                className=" flex items-center justify-center px-4 h-full py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
               >
                 <svg
                   className="h-3.5 w-3.5 mr-2"

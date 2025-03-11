@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 function mergeSessions(notes: any, mistakes: any, questionsMap: any) {
   const mergedData: any = {};
 
+  console.log(notes, mistakes, questionsMap, "Hello");
   // Merge notes
   notes.forEach((note: any) => {
     const { session_name, user_id, note_id, note: noteText } = note;
@@ -47,6 +48,7 @@ const Notepad = () => {
   const [mergedData, setMergedData] = useState<any>([]);
   const [wordsData, setWords] = useState([]);
   const [examplesData, setExamplesData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetch("https://syntaxmap-back-p4ve.onrender.com/dictionnary/user/", {
@@ -57,6 +59,7 @@ const Notepad = () => {
     })
       .then((res) => res.json())
       .then((data) => {
+        setIsLoading(false);
         setWords(data.dictionnary);
         fetch("https://syntaxmap-back-p4ve.onrender.com/userupload/user", {
           headers: {
@@ -66,6 +69,7 @@ const Notepad = () => {
         })
           .then((res) => res.json())
           .then((data) => {
+            setIsLoading(false);
             setExamplesData(data.userUploads);
 
             fetch(
@@ -108,7 +112,7 @@ const Notepad = () => {
                           [...questionIds].map(async (id: any) => {
                             try {
                               const response = await fetch(
-                                `https://syntaxmap-back-p4ve.onrender.com/quiz/${id}`,
+                                `https://syntaxmap-back-p4ve.onrender.com/quiz/mistake/${id}`,
                                 {
                                   headers: {
                                     "Content-type":
@@ -119,6 +123,7 @@ const Notepad = () => {
                                 }
                               );
                               const data = await response.json();
+
                               if (data.questions && data.questions.length > 0) {
                                 questionsMap[id] = data.questions[0]; // Store first result
                               }
@@ -138,20 +143,32 @@ const Notepad = () => {
                           questionsMap
                         );
                         setMergedData(data);
+                        setIsLoading(false);
                       }
                     })
-                    .catch((error) => console.error(error));
+                    .catch((error) => {
+                      setIsLoading(false);
+                      console.error(error);
+                    });
                 }
               })
-              .catch((error) => console.error(error));
+              .catch((error) => {
+                setIsLoading(false);
+                console.error(error);
+              });
           });
       });
   }, []);
-
+  if (isLoading)
+    return (
+      <div className="dark:bg-gray-900 h-screen w-screen z-[100] flex items-center justify-center">
+        <div className="loader"></div>
+      </div>
+    );
   return (
     <section className="bg-gray-50 dark:bg-gray-900 h-screen flex pt-10">
       <div className="max-w-screen-xl px-4 mx-auto lg:px-12 w-full">
-        <main className="h-auto ">
+        <main className="mt-12 h-auto ">
           <h2 className="max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
             Notepad
           </h2>
@@ -204,18 +221,9 @@ const Notepad = () => {
                         </th>
                         <td className="px-6 py-4">{data.note}</td>
                         <td className="px-6 py-4">
-                          {data.questions
-                            .filter(
-                              (value: any, index: any, self: any) =>
-                                index ===
-                                self.findIndex(
-                                  (t: any) =>
-                                    t.question_id === value.question_id
-                                )
-                            )
-                            .map((q: any) => (
-                              <p key={q.id}>{q.question_title}</p>
-                            ))}
+                          {data.questions.map((q: any, index: any) => (
+                            <p key={index}>{q.question_title}</p>
+                          ))}
                         </td>
                       </tr>
                     );

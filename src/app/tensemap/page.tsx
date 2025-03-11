@@ -7,7 +7,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="px-12 py-6 bg-gray-900 min-h-screen text-white relative flex flex-col items-center">
-      <h2 className="max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
+      <h2 className="mt-12  max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
         Tense Map
       </h2>
       {/* Labels for Tenses on the Side */}

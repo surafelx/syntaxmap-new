@@ -6,8 +6,8 @@ const StudentDashboard = () => {
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
 
   return (
-    <div className="px-12 py-6 bg-gray-900 min-h-screen text-white relative flex flex-col items-center">
-      <h2 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
+    <div className=" px-12 py-6 bg-gray-900 min-h-screen text-white relative flex flex-col items-center">
+      <h2 className="mt-12 max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
         No Future
       </h2>
       {/* Labels for Tenses on the Side */}
@@ -86,9 +86,11 @@ const StudentDashboard = () => {
             </div>
 
             <div className="flex flex-wrap gap-3 justify-center py-4">
-              <button className="bg-gray-700 w-[200px] text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
-                WOULD MOD ED
-              </button>
+              <Link href="/tense/would future in past">
+                <button className="bg-gray-700 w-[200px] text-white text-xl font-semibold p-3 rounded-lg shadow border border-gray-500">
+                  WOULD MOD ED
+                </button>
+              </Link>
             </div>
           </div>
 

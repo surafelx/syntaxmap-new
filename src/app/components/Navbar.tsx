@@ -55,8 +55,8 @@ const Navbar: React.FC = () => {
           className="flex items-center space-x-3 rtl:space-x-reverse"
         >
           <img
-            src="https://flowbite.com/docs/images/logo.svg"
-            className="h-8"
+            src="https://linguistic-communication.com/wp-content/uploads/2018/03/LC-1.jpg"
+            className="h-24"
             alt="Flowbite Logo"
           />
           <span
@@ -64,10 +64,7 @@ const Navbar: React.FC = () => {
               lineHeight: "100%",
             }}
             className=" text-xl font-semibold whitespace-nowrap dark:text-white"
-          >
-            LINGUISTIC <br />
-            COMMUNICATION
-          </span>
+          ></span>
         </Link>
 
         <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">

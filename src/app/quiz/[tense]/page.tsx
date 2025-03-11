@@ -27,6 +27,7 @@ const Quiz = () => {
 
   const [timePerQuestion, setTimePerQuestion] = useState(20);
   const [questionAmount, setQuestionAmount] = useState(20);
+  const [originalTimer, setOriginalTimer] = useState(20);
 
   const fetchData = () => {
     fetch(`https://syntaxmap-back-p4ve.onrender.com/quiz/` + tense, {
@@ -49,17 +50,40 @@ const Quiz = () => {
   const [quizResults, setQuizResults] = useState<any[]>([]);
   const [note, setNote] = useState();
 
-  useEffect(() => {
-    if (timePerQuestion === 0) {
-      handleNextQuestion(null); // Move to next question if time runs out
+  const handleNextQuestion = (answer: string | null) => {
+    if (answer) {
+      setQuizResults((prev) => [
+        ...prev,
+        {
+          question_id: tenseQuiz[currentIndex].question_id,
+          selected_answer: answer,
+          correct: answer === tenseQuiz[currentIndex].right_answer,
+        },
+      ]);
     }
 
-    const timer = setInterval(() => {
-      setTimePerQuestion((prev: any) => prev - 1);
-    }, 1000);
+    if (currentIndex < questionAmount - 1) {
+      setCurrentIndex((prev) => prev + 1);
+      setSelectedAnswer(null);
+      setTimePerQuestion(originalTimer);
+    } else {
+      setQuizState("completed");
+    }
+  };
 
-    return () => clearInterval(timer);
-  }, [timePerQuestion, setTimePerQuestion]);
+  useEffect(() => {
+    if (quizState != "initial") {
+      if (timePerQuestion === 0) {
+        handleNextQuestion(null); // Move to next question if time runs out
+      }
+
+      const timer = setInterval(() => {
+        setTimePerQuestion((prev: any) => prev - 1);
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [quizState, handleNextQuestion]);
 
   function getWrongQuestions(questionResults: any) {
     return questionResults
@@ -117,27 +141,6 @@ const Quiz = () => {
     setQuizState("submitted");
   };
 
-  const handleNextQuestion = (answer: string | null) => {
-    if (answer) {
-      setQuizResults((prev) => [
-        ...prev,
-        {
-          question_id: tenseQuiz[currentIndex].question_id,
-          selected_answer: answer,
-          correct: answer === tenseQuiz[currentIndex].right_answer,
-        },
-      ]);
-    }
-
-    if (currentIndex < questionAmount) {
-      setCurrentIndex((prev) => prev + 1);
-      setSelectedAnswer(null);
-      setTimePerQuestion(timePerQuestion); // Reset timer
-    } else {
-      setQuizState("completed");
-    }
-  };
-
   if (!tenseQuiz.length) return <p>No questions available</p>;
 
   const currentQuestion = tenseQuiz[currentIndex];
@@ -168,12 +171,17 @@ const Quiz = () => {
                 <select
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   value={timePerQuestion}
-                  onChange={(e) => setTimePerQuestion(Number(e.target.value))}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    console.log(timePerQuestion);
+                    setTimePerQuestion(e.target.value);
+                    setOriginalTimer(e.target.value);
+                  }}
                 >
-                  <option value="20">20</option>
-                  <option value="15">15</option>
-                  <option value="10">10</option>
-                  <option value="5">5</option>
+                  <option value={20}>20</option>
+                  <option value={15}>15</option>
+                  <option value={10}>10</option>
+                  <option value={5}>5</option>
                 </select>
               </div>
               <div className="w-full ">
@@ -183,9 +191,11 @@ const Quiz = () => {
                 <select
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   value={questionAmount}
-                  onChange={(e) =>
-                    setQuestionAmount(Number(e.target.value) - 1)
-                  }
+                  onChange={(e) => {
+                    console.log(questionAmount, "What");
+                    e.preventDefault();
+                    setQuestionAmount(Number(e.target.value));
+                  }}
                 >
                   <option value="20">20</option>
                   <option value="15">15</option>

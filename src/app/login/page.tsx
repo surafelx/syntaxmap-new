@@ -10,9 +10,11 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const response = await axios.post(
         "https://syntaxmap-back-p4ve.onrender.com/user/login",
@@ -38,24 +40,18 @@ const Login = () => {
     } catch (error) {
       console.error("Error during login:", error);
       setError("Invalid credentials. Please try again.");
+      setIsLoading(false);
     }
   };
 
+  if (isLoading)
+    return (
+      <div className="dark:bg-gray-900 h-screen w-screen z-[100] flex items-center justify-center">
+        <div className="loader"></div>
+      </div>
+    );
   return (
     <div className="min-h-screen  bg-gray-50 dark:bg-gray-900  flex flex-col items-center justify-center px-6 py-2 mx-auto md:h-screen lg:py-0">
-      <a
-        href="#"
-        className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
-      >
-        <img
-          className="w-8 h-8 mr-2"
-          src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
-          alt="logo"
-        />
-        <span className="text-xl font-semibold whitespace-nowrap dark:text-white">
-          LINGUISTIC <br /> COMMUNICATION
-        </span>
-      </a>
       <div className="w-full bg-white rounded-lg shadow dark:border sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
         <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
           <h1 className="text-xl font-bold text-gray-900 md:text-2xl dark:text-white">

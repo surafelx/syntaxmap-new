@@ -5,18 +5,25 @@ import { useState, useEffect } from "react";
 const Users = () => {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetch("https://syntaxmap-back-p4ve.onrender.com/user")
       .then((res) => res.json())
       .then((res) => {
         setUsers(res.users);
+        setIsLoading(false);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        setIsLoading(false);
+        console.log(err);
+      });
   }, []);
 
   const updateUser = (userId: any, updatedUser: any) => {
-    fetch(`https://syntaxmap-back-p4ve.onrender.com/user/${userId}`, {
+    console.log(updatedUser, "Humor");
+    setIsLoading(true);
+    fetch(`http://localhost:8000/user/update/${userId}`, {
       method: "PUT",
       body: JSON.stringify(updatedUser),
       headers: {
@@ -25,21 +32,52 @@ const Users = () => {
       },
     })
       .then((res) => res.json())
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
+      .then((res) => {
+        fetch("https://syntaxmap-back-p4ve.onrender.com/user")
+          .then((res) => res.json())
+          .then((res) => {
+            setUsers(res.users);
+            setIsLoading(false);
+          })
+          .catch((err) => {
+            setIsLoading(false);
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        console.log(err);
+      });
   };
 
   const deleteUser = (userId: any) => {
-    fetch(`https://syntaxmap-back-p4ve.onrender.com/user/${userId}`, {
+    setIsLoading(true);
+    fetch(`http://localhost:8000/user/${userId}`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
         Authorization: localStorage.getItem("jstoken") || "",
       },
     })
-      .then((res) => res.json())
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
+      .then((res) => {
+        res.json();
+      })
+      .then((res) => {
+        fetch("https://syntaxmap-back-p4ve.onrender.com/user")
+          .then((res) => res.json())
+          .then((res) => {
+            setUsers(res.users);
+            setIsLoading(false);
+          })
+          .catch((err) => {
+            setIsLoading(false);
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        console.log(err);
+      });
   };
 
   const handleChange = (
@@ -52,6 +90,7 @@ const Users = () => {
         if (user.user_id === userId) {
           return { ...user, [field]: e.target.value };
         }
+        console.log(user);
         return user;
       });
     });
@@ -59,15 +98,16 @@ const Users = () => {
 
   const createUser = (e: React.FormEvent) => {
     e.preventDefault();
-
+    setIsLoading(true);
     // Get form data
     const formData = new FormData(e.target as HTMLFormElement);
     const userData = {
-      user_email_address: formData.get("user_email_address") as string,
-      user_role: formData.get("user_role") as string,
+      user_email_address: formData.get("email") as string,
+      user_role: formData.get("role") as string,
+      user_password: formData.get("password") as string,
     };
 
-    fetch("https://syntaxmap-back-p4ve.onrender.com/course", {
+    fetch("http://localhost:8000/user/add", {
       method: "POST",
       body: JSON.stringify(userData),
       headers: {
@@ -76,14 +116,28 @@ const Users = () => {
       },
     })
       .then((res) => res.json())
-      .then((newCourse) => {
-        // Update the courses state with the new course
-        // @ts-ignore
-        setUsers((prevUsers) => [...prevUsers, newUser]);
+      .then(() => {
+        fetch("https://syntaxmap-back-p4ve.onrender.com/user")
+          .then((res) => res.json())
+          .then((res) => {
+            setUsers(res.users);
+            setIsLoading(false);
+          })
+          .catch((err) => {
+            setIsLoading(false);
+            console.log(err);
+          });
         setIsUserModalOpen(false); // Close the modal
       })
       .catch((err) => console.log(err));
   };
+
+  if (isLoading)
+    return (
+      <div className="dark:bg-gray-900 h-screen w-screen z-[100] flex items-center justify-center">
+        <div className="loader"></div>
+      </div>
+    );
 
   return (
     <div className="overflow-y-scroll min-h-screen bg-gray-900">
@@ -99,7 +153,7 @@ const Users = () => {
         <div className="relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow-sm dark:bg-gray-700">
           <div className="flex items-center justify-between p-2 md:p-2 border-b rounded-t dark:border-gray-600 border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Create New Course
+              Create New User
             </h3>
             <button
               onClick={() => setIsUserModalOpen(false)}
@@ -129,39 +183,39 @@ const Users = () => {
             <div className="grid gap-4 mb-4 grid-cols-2">
               <div className="col-span-2">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Title
+                  Email
                 </label>
                 <input
-                  type="text"
-                  name="course_title"
+                  type="email"
+                  name="email"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="Type course title"
+                  placeholder="Type user email"
                   required
                 />
               </div>
               <div className="col-span-2">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Item
+                  Role
+                </label>
+                <select
+                  name="role"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                >
+                  <option value={0}>Admin</option>
+                  <option value={3}>Student</option>
+                </select>
+              </div>
+              <div className="col-span-2 mb-6">
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Password
                 </label>
                 <input
-                  type="text"
-                  name="course_item"
+                  type="password"
+                  name="password"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="Type course item"
+                  placeholder="********"
                   required
                 />
-              </div>
-
-              <div className="col-span-2">
-                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Course Description
-                </label>
-                <textarea
-                  name="course_description"
-                  rows={4}
-                  className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="Write course description here"
-                ></textarea>
               </div>
             </div>
             <button
@@ -180,7 +234,7 @@ const Users = () => {
                   clipRule="evenodd"
                 ></path>
               </svg>
-              Add new course
+              Add new User
             </button>
           </form>
         </div>
@@ -188,7 +242,7 @@ const Users = () => {
 
       <section className="bg-gray-50 dark:bg-gray-900 h-screen flex pt-10">
         <div className="max-w-screen-xl px-4 mx-auto lg:px-12 w-full">
-          <h2 className="max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
+          <h2 className="mt-12 max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
             Users
           </h2>
           <div className="relative bg-white shadow-md dark:bg-gray-800 sm:rounded-lg mb-4">
@@ -241,7 +295,7 @@ const Users = () => {
                       d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                     />
                   </svg>
-                  Add Course
+                  Add User
                 </button>
               </div>
             </div>
@@ -279,28 +333,20 @@ const Users = () => {
                         {course?.user_id}
                       </th>
                       <td className="px-6 py-2">
-                        <input
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          value={course?.user_email_address}
-                          onChange={(e) =>
-                            handleChange(
-                              e,
-                              course?.user_id,
-                              "user_email_address"
-                            )
-                          }
-                        />
+                        {course?.user_email_address}
                       </td>
                       <td className="px-6 py-2">
-                        <input
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        <select
                           value={course?.user_role}
                           onChange={(e) =>
-                            handleChange(e, course?.user_role, "user_role")
+                            handleChange(e, course?.user_id, "user_role")
                           }
-                        />
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
+                          <option value={0}>Admin</option>
+                          <option value={3}>Student</option>
+                        </select>
                       </td>
-                      q
                       <td className="px-6 py-2">
                         <button
                           onClick={() => deleteUser(course?.user_id)}

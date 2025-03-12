@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -5,15 +6,94 @@ import { useState, useEffect } from "react";
 const Courses = () => {
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [questions, setQuestions] = useState([]);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [courseIds, setCourseIds] = useState([]);
+  const [difficulty, setDifficulty] = useState("facile"); // Default to "Facile"
 
+  const handleCourseSelect = (e) => {
+    const selectedCourseId = e.target.value;
+
+    setCourseIds(
+      (prevCourseIds) =>
+        prevCourseIds.includes(selectedCourseId)
+          ? prevCourseIds.filter((id) => id !== selectedCourseId) // Remove if exists
+          : [selectedCourseId, ...prevCourseIds] // Add at the top if not
+    );
+  };
+
+  const createQuestion = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log(e, courseIds, difficulty);
+    setIsLoading(true);
+
+    // Get form data
+    const formData = new FormData(e.target as HTMLFormElement);
+    const quizData = {
+      question_title: formData.get("question_title") as string,
+      quiz_data: [
+        formData.get("answer_title_a") as string,
+        formData.get("answer_title_b") as string,
+        formData.get("answer_title_c") as string,
+        formData.get("answer_title_d") as string,
+      ],
+      difficulty: 1,
+      online_exam_ids: courseIds,
+    };
+
+    quizData.verified = true;
+    fetch("http://localhost:8000/quiz", {
+      method: "POST",
+      body: JSON.stringify(quizData),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        Authorization: localStorage.getItem("jstoken") || "",
+      },
+    })
+      .then((res) => res.json())
+      .then(() => {
+        fetch("https://syntaxmap-back-p4ve.onrender.com/quiz")
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            setQuestions(data.questions);
+            fetch("https://syntaxmap-back-p4ve.onrender.com/course")
+              .then((res) => res.json())
+              .then((res) => {
+                setCourses(res.courses);
+                setIsLoading(false);
+              })
+              .catch((err) => {
+                console.log(err);
+                setIsLoading(false);
+              });
+          })
+          .catch((err) => console.log(err));
+        setIsCourseModalOpen(false);
+      })
+      .catch((err) => console.log(err));
+  };
   useEffect(() => {
+    setIsLoading(true);
     fetch("https://syntaxmap-back-p4ve.onrender.com/quiz")
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
         setQuestions(data.questions);
+        setIsLoading(false);
+        fetch("https://syntaxmap-back-p4ve.onrender.com/course")
+          .then((res) => res.json())
+          .then((res) => {
+            setCourses(res.courses);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        setIsLoading(false);
+      });
   }, []);
 
   const updateCourse = (e: any) => {
@@ -41,7 +121,8 @@ const Courses = () => {
   };
 
   const deleteCourse = (courseId: any) => {
-    fetch(`https://syntaxmap-back-p4ve.onrender.com/course/${courseId}`, {
+    setIsLoading(true);
+    fetch(`https://syntaxmap-back-p4ve.onrender.com/quiz/${courseId}`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -49,9 +130,21 @@ const Courses = () => {
       },
     })
       .then((res) => res.json())
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
+      .then((res) => {
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsLoading(false);
+      });
   };
+
+  if (isLoading)
+    return (
+      <div className="dark:bg-gray-900 h-screen w-screen z-[100] flex items-center justify-center">
+        <div className="loader"></div>
+      </div>
+    );
 
   return (
     <div className="overflow-y-scroll min-h-screen bg-gray-900">
@@ -61,12 +154,12 @@ const Courses = () => {
         aria-hidden="true"
         className={`${
           !isCourseModalOpen && "hidden"
-        } fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center`} // Flexbox for centering and overlay with opacity
+        } fixed overflow-y-scroll inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center`} // Flexbox for centering and overlay with opacity
       >
         <div className="relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow-sm dark:bg-gray-700">
           <div className="flex items-center justify-between p-2 md:p-2 border-b rounded-t dark:border-gray-600 border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Create New Course
+              Create New Question
             </h3>
             <button
               onClick={() => setIsCourseModalOpen(false)}
@@ -92,50 +185,135 @@ const Courses = () => {
               <span className="sr-only">Close modal</span>
             </button>
           </div>
-          <form className="p-4 md:p-5">
+          <form className="p-4 md:p-5" onSubmit={createQuestion}>
             <div className="grid gap-4 mb-4 grid-cols-2">
               <div className="col-span-2">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Title
+                  Online Exams
                 </label>
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="Type course title"
-                  required
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Item
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="Type course item"
-                  required
-                />
-              </div>
+                {courseIds.map((id) => (
+                  <div
+                    className="px-2 py-1 border-white border-2 mb-2 rounded-lg relative"
+                    key={id}
+                  >
+                    {
+                      courses.find((course) => course.course_id == id)
+                        ?.course_item
+                    }
+                    <span
+                      onClick={() =>
+                        setCourseIds((prev) =>
+                          prev.filter((courseId) => courseId !== id)
+                        )
+                      }
+                      className="absolute right-5"
+                    >
+                      x
+                    </span>
+                  </div>
+                ))}
 
+                <select
+                  onChange={handleCourseSelect}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                >
+                  <option value="">Select a course</option>
+                  {courses.map((course) => (
+                    <option key={course.course_id} value={course.course_id}>
+                      {course.course_item}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="col-span-2">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Course Description
+                  Question
                 </label>
-                <textarea
-                  id="description"
-                  rows={4}
-                  className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="Write course description here"
-                ></textarea>
+                <input
+                  type="text"
+                  name="question_title"
+                  id="question_title"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="Enter Question Here"
+                  required
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block mb-4 text-sm font-medium text-gray-900 dark:text-white">
+                  Options
+                </label>
+                <input
+                  type="text"
+                  name="answer_title_a"
+                  id="answer_title_a"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="Enter Good Answer"
+                  required
+                />
+              </div>
+              <div className="col-span-2">
+                <input
+                  type="text"
+                  name="answer_title_b"
+                  id="answer_title_b"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="Enter Bad Answer"
+                  required
+                />
+              </div>
+              <div className="col-span-2">
+                <input
+                  type="text"
+                  name="answer_title_c"
+                  id="answer_title_c"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="Enter Bad Answer"
+                  required
+                />
+              </div>
+              <div className="col-span-2">
+                <input
+                  type="text"
+                  name="answer_title_d"
+                  id="answer_title_d"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="Enter Bad Answer"
+                  required
+                />
+              </div>
+              <div className="mt-4">
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Difficulty Level
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      value="facile"
+                      checked={difficulty === "facile"}
+                      onChange={() => setDifficulty("facile")}
+                      className="form-radio text-blue-600"
+                    />
+                    <span className="text-gray-900 dark:text-white">
+                      Facile
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      value="toeic"
+                      checked={difficulty === "toeic"}
+                      onChange={() => setDifficulty("toeic")}
+                      className="form-radio text-blue-600"
+                    />
+                    <span className="text-gray-900 dark:text-white">TOEIC</span>
+                  </label>
+                </div>
               </div>
             </div>
             <button
               type="submit"
-              className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="mt-4 text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               <svg
                 className="me-1 -ms-1 w-5 h-5"
@@ -149,7 +327,7 @@ const Courses = () => {
                   clipRule="evenodd"
                 ></path>
               </svg>
-              Add new course
+              Add new question
             </button>
           </form>
         </div>
@@ -157,7 +335,7 @@ const Courses = () => {
 
       <section className="bg-gray-50 dark:bg-gray-900 h-screen flex pt-10">
         <div className="max-w-screen-xl px-4 mx-auto lg:px-12 w-full">
-          <h2 className="max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
+          <h2 className="mt-12 max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
             Questions
           </h2>
           <div className="relative bg-white shadow-md dark:bg-gray-800 sm:rounded-lg mb-4">
@@ -210,7 +388,7 @@ const Courses = () => {
                       d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                     />
                   </svg>
-                  Add Course
+                  Add Question
                 </button>
               </div>
             </div>

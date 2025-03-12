@@ -5,17 +5,24 @@ import { useState, useEffect } from "react";
 const Courses = () => {
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [courses, setCourses] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     fetch("https://syntaxmap-back-p4ve.onrender.com/course")
       .then((res) => res.json())
       .then((res) => {
         setCourses(res.courses);
+        setIsLoading(false);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        setIsLoading(false);
+      });
   }, []);
 
   const updateCourse = (courseId: any, updatedCourse: any) => {
+    setIsLoading(true);
     fetch(`https://syntaxmap-back-p4ve.onrender.com/course/${courseId}`, {
       method: "PUT",
       body: JSON.stringify(updatedCourse),
@@ -25,11 +32,23 @@ const Courses = () => {
       },
     })
       .then((res) => res.json())
-      .then((res) => console.log(res))
+      .then(() => {
+        fetch("https://syntaxmap-back-p4ve.onrender.com/course")
+          .then((res) => res.json())
+          .then((res) => {
+            setCourses(res.courses);
+            setIsLoading(false);
+          })
+          .catch((err) => {
+            console.log(err);
+            setIsLoading(false);
+          });
+      })
       .catch((err) => console.log(err));
   };
 
   const deleteCourse = (courseId: any) => {
+    setIsLoading(true);
     fetch(`https://syntaxmap-back-p4ve.onrender.com/course/${courseId}`, {
       method: "DELETE",
       headers: {
@@ -38,7 +57,18 @@ const Courses = () => {
       },
     })
       .then((res) => res.json())
-      .then((res) => console.log(res))
+      .then(() => {
+        fetch("https://syntaxmap-back-p4ve.onrender.com/course")
+          .then((res) => res.json())
+          .then((res) => {
+            setCourses(res.courses);
+            setIsLoading(false);
+          })
+          .catch((err) => {
+            console.log(err);
+            setIsLoading(false);
+          });
+      })
       .catch((err) => console.log(err));
   };
 
@@ -59,7 +89,7 @@ const Courses = () => {
 
   const createCourse = (e: React.FormEvent) => {
     e.preventDefault();
-
+    setIsLoading(true);
     // Get form data
     const formData = new FormData(e.target as HTMLFormElement);
     const courseData = {
@@ -79,12 +109,30 @@ const Courses = () => {
     })
       .then((res) => res.json())
       .then((newCourse) => {
-        // Update the courses state with the new course
-        setCourses((prevCourses) => [...prevCourses, newCourse]);
-        setIsCourseModalOpen(false); // Close the modal
+        fetch("https://syntaxmap-back-p4ve.onrender.com/course")
+          .then((res) => res.json())
+          .then((res) => {
+            setCourses(res.courses);
+            setIsLoading(false);
+            setIsCourseModalOpen(false);
+          })
+          .catch((err) => {
+            console.log(err);
+            setIsLoading(false);
+          });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        setIsLoading(false);
+      });
   };
+
+  if (isLoading)
+    return (
+      <div className="dark:bg-gray-900 h-screen w-screen z-[100] flex items-center justify-center">
+        <div className="loader"></div>
+      </div>
+    );
 
   return (
     <div className="overflow-y-scroll min-h-screen bg-gray-900">
@@ -189,7 +237,7 @@ const Courses = () => {
 
       <section className="bg-gray-50 dark:bg-gray-900 h-screen flex pt-10">
         <div className="max-w-screen-xl px-4 mx-auto lg:px-12 w-full">
-          <h2 className="max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
+          <h2 className="mt-12 max-w-2xl mb-4 text-3xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white">
             Courses
           </h2>
           <div className="relative bg-white shadow-md dark:bg-gray-800 sm:rounded-lg mb-4">
